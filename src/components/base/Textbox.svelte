@@ -1,20 +1,28 @@
 <script lang="ts">
     export let label: string;
-    export let value: string;
-    export let input_type: "text" | "password" = "text";
+    export let value: string | number;
+    export let html_input_type: "text" | "password" = "text";
+    export let input_type: "integer" | "float" | undefined = undefined;
     export let name = label;
     export let maxlength = -1;
 
     function handleInput(event) {
-        value = (event.target as HTMLInputElement).value;
+        const val = (event.target as HTMLInputElement).value;
+        if (input_type === "integer") {
+            value = parseInt(val);
+        } else if (input_type === "float") {
+            value = parseFloat(val);
+        } else {
+            value = val;
+        }
     }
 </script>
 
 <div class="input-group">
     <label class="input-label" for={name}>{label}</label>
     <input
-        type={input_type}
-        {value}
+        type={html_input_type}
+        value={value ? value : ""}
         on:input={handleInput}
         {name}
         {maxlength}

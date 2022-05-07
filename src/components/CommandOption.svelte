@@ -3,8 +3,10 @@
         ApplicationCommandOption,
         ApplicationCommandOptionType,
     } from "../models/app_command";
+    import Checkbox from "./base/Checkbox.svelte";
     import Select from "./base/Select.svelte";
     import Textbox from "./base/Textbox.svelte";
+    import CommandOptionChoice from "./CommandOptionChoice.svelte";
     import Icon from "./Icon.svelte";
 
     export let option: Partial<ApplicationCommandOption>;
@@ -14,6 +16,47 @@
             option.options = [];
         }
         option.options = [...option.options, { name: "", description: "" }];
+    }
+
+    function addOptionChoice() {
+        if (!option.choices) {
+            option.choices = [];
+        }
+        option.choices = [...option.choices, { name: "", value: "" }];
+    }
+
+    function cleanUpOption(opt: Partial<ApplicationCommandOption>) {
+        if (
+            opt.options != undefined &&
+            opt.type !== ApplicationCommandOptionType.SUB_COMMAND &&
+            opt.type !== ApplicationCommandOptionType.SUB_COMMAND_GROUP
+        ) {
+            opt.options = undefined;
+        }
+        if (
+            (opt.max_value != undefined || option.min_value != undefined) &&
+            opt.type !== ApplicationCommandOptionType.INTEGER &&
+            opt.type !== ApplicationCommandOptionType.NUMBER
+        ) {
+            opt.max_value = undefined;
+            opt.min_value = undefined;
+        }
+        if (
+            opt.autocomplete != undefined &&
+            opt.type !== ApplicationCommandOptionType.NUMBER &&
+            opt.type !== ApplicationCommandOptionType.INTEGER &&
+            opt.type !== ApplicationCommandOptionType.STRING
+        ) {
+            opt.autocomplete = undefined;
+        }
+        if (
+            opt.choices != undefined &&
+            opt.type !== ApplicationCommandOptionType.NUMBER &&
+            opt.type !== ApplicationCommandOptionType.INTEGER &&
+            opt.type !== ApplicationCommandOptionType.STRING
+        ) {
+            opt.choices = undefined;
+        }
     }
 
     let commandOptionTypes = [];
@@ -33,13 +76,7 @@
 
     let defaultOptionType = 2;
     $: option.type = commandOptionTypes[defaultOptionType].value;
-    $: if (
-        option.type != ApplicationCommandOptionType.SUB_COMMAND &&
-        option.type != ApplicationCommandOptionType.SUB_COMMAND_GROUP &&
-        option.options
-    ) {
-        option.options = undefined;
-    }
+    $: cleanUpOption(option);
 </script>
 
 <div class="command-option-container">
@@ -50,24 +87,59 @@
             bind:value={option.description}
             maxlength={100}
         />
+        <Checkbox label="Required" bind:value={option.required} />
         <Select
             label="Type"
             options={commandOptionTypes}
             bind:currentIndex={defaultOptionType}
         />
-        {#if option.type === ApplicationCommandOptionType.SUB_COMMAND || option.type === ApplicationCommandOptionType.SUB_COMMAND_GROUP}
-            {#if option.options}
-                {#each option.options as child_option}
-                    <svelte:self option={child_option} />
+    </div>
+    {#if option.type === ApplicationCommandOptionType.SUB_COMMAND || option.type === ApplicationCommandOptionType.SUB_COMMAND_GROUP}
+        {#if option.options}
+            {#each option.options as child_option}
+                <svelte:self option={child_option} />
+            {/each}
+        {/if}
+        <div class="button-bar">
+            <button on:click={addOption}>
+                <Icon name="add" class="btn-icon" />Add Option
+            </button>
+        </div>
+    {/if}
+    {#if option.type === ApplicationCommandOptionType.CHANNEL}
+        <div>Placeholder for multiselect</div>
+    {/if}
+    {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER}
+        <Textbox
+            label="Max Value"
+            input_type={option.type === ApplicationCommandOptionType.NUMBER
+                ? "integer"
+                : "float"}
+            bind:value={option.max_value}
+        />
+        <Textbox
+            label="Min Value"
+            input_type={option.type === ApplicationCommandOptionType.NUMBER
+                ? "integer"
+                : "float"}
+            bind:value={option.min_value}
+        />
+    {/if}
+    {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER || option.type === ApplicationCommandOptionType.STRING}
+        <Checkbox label="Autocomplete" bind:value={option.autocomplete} />
+        {#if option.choices}
+            <div class="option-choice-list">
+                {#each option.choices as choice}
+                    <CommandOptionChoice bind:choice />
                 {/each}
-            {/if}
-            <div class="button-bar">
-                <button on:click={addOption}>
-                    <Icon name="add" class="btn-icon" />Add Option
-                </button>
             </div>
         {/if}
-    </div>
+        <div class="button-bar">
+            <button on:click={addOptionChoice}>
+                <Icon name="add" class="btn-icon" />Add Option Choice
+            </button>
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -76,5 +148,13 @@
         box-shadow: 0px 0px 5px 0px var(--box-shadow);
         border-radius: 0.5em;
         margin-bottom: 1em;
+    }
+
+    .option-choice-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin: 1em 0;
+        gap: 1em;
     }
 </style>
