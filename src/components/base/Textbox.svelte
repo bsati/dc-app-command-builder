@@ -4,11 +4,21 @@
     export let input_type: "text" | "password" = "text";
     export let name = label;
     export let maxlength = -1;
+
+    function handleInput(event) {
+        value = (event.target as HTMLInputElement).value;
+    }
 </script>
 
 <div class="input-group">
     <label for={name}>{label}</label>
-    <input type={input_type} {value} {name} {maxlength} />
+    <input
+        type={input_type}
+        {value}
+        on:input={handleInput}
+        {name}
+        {maxlength}
+    />
 </div>
 
 <style lang="scss">
@@ -19,10 +29,10 @@
         input {
             background: var(--background-color-brighter);
             padding: 0.8em;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--input-text-color);
             border-radius: 0.5em;
             margin: 0.3em 0;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--input-border);
 
             &:focus,
             &:focus-visible {

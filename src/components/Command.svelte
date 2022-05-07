@@ -2,10 +2,14 @@
     import Highlight from "svelte-highlight";
     import json from "svelte-highlight/languages/json";
     import atomOneDark from "svelte-highlight/styles/atom-one-dark";
-    import type { ApplicationCommand } from "../models/app_command";
+    import {
+        ApplicationCommand,
+        ApplicationCommandType,
+    } from "../models/app_command";
+    import Select from "./base/Select.svelte";
+    import Textbox from "./base/Textbox.svelte";
     import CommandOption from "./CommandOption.svelte";
     import Icon from "./Icon.svelte";
-    import Textbox from "./Textbox.svelte";
 
     export let command: Partial<ApplicationCommand>;
     $: command_json = JSON.stringify(command, null, 4);
@@ -20,6 +24,24 @@
     function copyJSONToClipboard() {
         navigator.clipboard.writeText(command_json);
     }
+
+    let commandTypes = [];
+    const entries = Object.entries(ApplicationCommandType);
+    entries.splice(0, entries.length / 2);
+    for (let commandType of entries) {
+        let display = commandType[0].toLowerCase();
+        const split = display.split("_");
+        display = split
+            .map((str) => str[0].toUpperCase() + str.slice(1))
+            .join(" ");
+        commandTypes.push({
+            display: display,
+            value: commandType[1],
+        });
+    }
+
+    let defaultCommandType = 0;
+    $: command.type = commandTypes[defaultCommandType].value;
 </script>
 
 <svelte:head>
@@ -27,8 +49,17 @@
 </svelte:head>
 
 <div class="command-container">
-    <Textbox label="Name" value={command.name} maxlength={30} />
-    <Textbox label="Description" value={command.description} maxlength={100} />
+    <Textbox label="Name" bind:value={command.name} maxlength={30} />
+    <Textbox
+        label="Description"
+        bind:value={command.description}
+        maxlength={100}
+    />
+    <Select
+        label="Type"
+        options={commandTypes}
+        bind:currentIndex={defaultCommandType}
+    />
     <div class="command-options">
         {#if command.options}
             {#each command.options as option}

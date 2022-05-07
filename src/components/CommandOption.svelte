@@ -1,14 +1,18 @@
 <script lang="ts">
     import type { ApplicationCommandOption } from "../models/app_command";
-    import Textbox from "./Textbox.svelte";
+    import Textbox from "./base/Textbox.svelte";
 
     export let option: Partial<ApplicationCommandOption>;
 </script>
 
 <div class="command-option-container">
     <div class="command-option-info">
-        <Textbox label="Name" value={option.name} />
-        <Textbox label="Description" value={option.description} />
+        <Textbox label="Name" value={option.name} maxlength={30} />
+        <Textbox
+            label="Description"
+            value={option.description}
+            maxlength={100}
+        />
     </div>
 </div>
 
