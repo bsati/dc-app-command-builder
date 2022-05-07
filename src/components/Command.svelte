@@ -4,6 +4,7 @@
     import atomOneDark from "svelte-highlight/styles/atom-one-dark";
     import type { ApplicationCommand } from "../models/app_command";
     import CommandOption from "./CommandOption.svelte";
+    import Icon from "./Icon.svelte";
     import Textbox from "./Textbox.svelte";
 
     export let command: Partial<ApplicationCommand>;
@@ -26,28 +27,38 @@
 </svelte:head>
 
 <div class="command-container">
-    <Textbox label="Name" value={command.name} />
-    <Textbox label="Description" value={command.description} />
-    {#if command.options}
-        {#each command.options as option}
-            <CommandOption {option} />
-        {/each}
-    {/if}
-    <div class="output-json-container">
-        <Highlight language={json} code={command_json} />
-        <button class="copy-button" on:click={copyJSONToClipboard}>Copy</button>
+    <Textbox label="Name" value={command.name} maxlength={30} />
+    <Textbox label="Description" value={command.description} maxlength={100} />
+    <div class="command-options">
+        {#if command.options}
+            {#each command.options as option}
+                <CommandOption {option} />
+            {/each}
+        {/if}
     </div>
     <div class="button-bar">
-        <button on:click={addOption}>Add Option</button>
+        <button on:click={addOption}>
+            <Icon name="add" class="btn-icon" />Add Option
+        </button>
+    </div>
+    <div class="output-json-container">
+        <Highlight language={json} code={command_json} />
+        <button class="copy-button" on:click={copyJSONToClipboard}>
+            <Icon name="copy" class="btn-icon" />Copy
+        </button>
     </div>
 </div>
 
 <style lang="scss">
     .command-container {
         padding: 1.5em;
-        box-shadow: 0px 0px 10px 3px #0f1011;
+        box-shadow: 0px 0px 10px 3px var(--box-shadow);
         border-radius: 0.5em;
         margin-bottom: 1em;
+    }
+
+    .command-options {
+        margin: 1em 0;
     }
 
     .output-json-container {

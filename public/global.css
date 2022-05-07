@@ -8,6 +8,15 @@
 	src: url('./fonts/Montserrat-Bold.ttf');
 }
 
+:root {
+	--background-color: #202225;
+	--background-color-brighter: #34383e;
+	--text-color: rgba(255, 255, 255, 0.85);
+	--box-shadow: #0f1011;
+	--primary-color: #5468ff;
+	--primary-color-darker: #404fc5;
+}
+
 html,
 body {
 	position: relative;
@@ -16,17 +25,39 @@ body {
 }
 
 body {
-	color: #fff;
-	opacity: 0.85;
+	color: var(--text-color);
 	margin: 0;
 	padding: 8px;
 	box-sizing: border-box;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
-	background-color: #202225;
+	background-color: var(--background-color);
 }
 
 h1 {
 	font-weight: 700;
 	letter-spacing: 1.5px;
+}
+
+button {
+	padding: 0.7em 1em;
+	border-radius: 5em;
+	border: none;
+	background: var(--primary-color);
+	color: var(--text-color);
+	font-family: "Montserrat", sans-serif;
+	font-weight: 400;
+	display: flex;
+	align-items: center;
+}
+
+button:hover {
+	background: var(--primary-color-darker);
+}
+
+.btn-icon {
+	display: inline-block;
+	width: 20px;
+	margin-right: 0.3em;
+	margin-bottom: -.2em;
 }
