@@ -13,7 +13,7 @@
 <div class="command-list-container">
     <div class="command-list">
         {#each commands as command}
-            <Command {command} />
+            <Command bind:command />
         {/each}
     </div>
     <div class="button-bar">

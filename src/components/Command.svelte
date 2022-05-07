@@ -49,7 +49,7 @@
 </svelte:head>
 
 <div class="command-container">
-    <Textbox label="Name" bind:value={command.name} maxlength={30} />
+    <Textbox label="Name" bind:value={command.name} maxlength={32} />
     <Textbox
         label="Description"
         bind:value={command.description}
@@ -63,7 +63,7 @@
     <div class="command-options">
         {#if command.options}
             {#each command.options as option}
-                <CommandOption {option} />
+                <CommandOption bind:option />
             {/each}
         {/if}
     </div>
@@ -82,7 +82,7 @@
 
 <style lang="scss">
     .command-container {
-        padding: 1.5em;
+        padding: 1em 1.5em;
         box-shadow: 0px 0px 10px 3px var(--box-shadow);
         border-radius: 0.5em;
         margin-bottom: 1em;

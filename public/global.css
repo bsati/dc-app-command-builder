@@ -63,3 +63,7 @@ button:hover {
 	margin-right: 0.3em;
 	margin-bottom: -.2em;
 }
+
+.input-label {
+	margin: .5em 0 .3em 0;
+}

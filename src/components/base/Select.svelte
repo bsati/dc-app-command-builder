@@ -12,27 +12,29 @@
     let opened = false;
 </script>
 
-<span>{label}</span>
-<div class="select" on:click={() => (opened = !opened)}>
-    {#if currentIndex >= 0}
-        {options[currentIndex].display}
-    {:else}
-        Select...
-    {/if}
-    <Icon name="chevron_down" class="select-chevron" />
-    {#if opened}
-        <div class="select-options">
-            {#each options as option, i}
-                <div class="option" on:click={() => (currentIndex = i)}>
-                    {option.display}
-                </div>
-            {/each}
-        </div>
-    {/if}
+<div class="select">
+    <span class="input-label">{label}</span>
+    <div class="select-input" on:click={() => (opened = !opened)}>
+        {#if currentIndex >= 0}
+            {options[currentIndex].display}
+        {:else}
+            Select...
+        {/if}
+        <Icon name="chevron_down" class="select-chevron" />
+        {#if opened}
+            <div class="select-options">
+                {#each options as option, i}
+                    <div class="option" on:click={() => (currentIndex = i)}>
+                        {option.display}
+                    </div>
+                {/each}
+            </div>
+        {/if}
+    </div>
 </div>
 
 <style lang="scss">
-    .select {
+    .select-input {
         background: var(--background-color-brighter);
         padding: 0.8em;
         color: var(--input-text-color);
@@ -58,6 +60,8 @@
         z-index: 2;
         border-radius: 0.5em;
         width: 100%;
+        max-height: 13em;
+        overflow-y: scroll;
 
         .option {
             width: calc(100% - 1em);
@@ -78,5 +82,9 @@
                 background: rgb(255, 255, 255, 0.05);
             }
         }
+    }
+
+    .input-label {
+        display: inline-block;
     }
 </style>

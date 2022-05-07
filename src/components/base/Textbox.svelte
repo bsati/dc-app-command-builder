@@ -11,7 +11,7 @@
 </script>
 
 <div class="input-group">
-    <label for={name}>{label}</label>
+    <label class="input-label" for={name}>{label}</label>
     <input
         type={input_type}
         {value}
