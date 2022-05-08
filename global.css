@@ -57,6 +57,16 @@ button:hover {
 	background: var(--primary-color-darker);
 }
 
+.btn-text {
+	background: none;
+	color: var(--primary-color);
+}
+
+.btn-text:hover {
+	background: #5468ff10;
+	color: #6577ff;
+}
+
 .btn-icon {
 	display: inline-block;
 	width: 20px;
