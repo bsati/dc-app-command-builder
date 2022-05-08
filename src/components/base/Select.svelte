@@ -10,6 +10,26 @@
     export let label: string | undefined = undefined;
     export let options: SelectValue[];
     export let currentIndex = -1;
+    export let selectionMode: "single" | "multiple" = "single";
+    export let currentIndices: number[] = [];
+    const defaultText = "Select...";
+    let formattedText = defaultText;
+    $: {
+        if (selectionMode === "single" && currentIndex >= 0) {
+            formattedText = options[currentIndex].display;
+        } else if (selectionMode === "multiple" && currentIndices.length > 0) {
+            formattedText = options
+                .filter(
+                    (_val, idx, _arr) =>
+                        currentIndices.findIndex((x) => x === idx) !== -1
+                )
+                .map((x) => x.display)
+                .join(", ");
+        } else {
+            formattedText = defaultText;
+        }
+    }
+
     let opened = false;
 
     let selectElement: HTMLElement;
@@ -25,6 +45,28 @@
         }
     }
 
+    function handleSelection(i: number) {
+        if (selectionMode === "multiple") {
+            const index = currentIndices.findIndex((x) => x === i);
+            if (index === -1) {
+                currentIndices = [...currentIndices, i];
+            } else {
+                currentIndices.splice(index, 1);
+                currentIndices = currentIndices;
+            }
+            dispatch("selectionChanged", {
+                values: options.filter(
+                    (_val, idx, _arr) =>
+                        currentIndices.findIndex((x) => x === idx) !== -1
+                ),
+            });
+        } else {
+            currentIndex = i;
+            dispatch("selectionChanged", {
+                newValue: options[i],
+            });
+        }
+    }
     const dispatch = createEventDispatcher();
 </script>
 
@@ -39,24 +81,12 @@
         <span class="input-label">{label}</span>
     {/if}
     <div class="select-input" on:click={() => (opened = !opened)}>
-        {#if currentIndex >= 0}
-            {options[currentIndex].display}
-        {:else}
-            Select...
-        {/if}
+        {formattedText}
         <Icon name="chevron_down" class="select-chevron" />
         {#if opened}
             <div class="select-options" bind:this={optionsElements}>
                 {#each options as option, i}
-                    <div
-                        class="option"
-                        on:click={() => {
-                            currentIndex = i;
-                            dispatch("selectionChanged", {
-                                newValue: options[i],
-                            });
-                        }}
-                    >
+                    <div class="option" on:click={() => handleSelection(i)}>
                         {option.display}
                     </div>
                 {/each}

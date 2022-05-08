@@ -3,13 +3,16 @@
     import {
         ApplicationCommandOption,
         ApplicationCommandOptionType,
+        ChannelType,
     } from "../models/app_command";
+    import { buildOptionsFromEnum } from "../util/enum_util";
     import Checkbox from "./base/Checkbox.svelte";
     import Collapsible from "./base/Collapsible.svelte";
     import Select from "./base/Select.svelte";
     import Textbox from "./base/Textbox.svelte";
     import CommandOptionChoice from "./CommandOptionChoice.svelte";
     import Icon from "./Icon.svelte";
+    import Localization from "./Localization.svelte";
 
     export let option: Partial<ApplicationCommandOption>;
 
@@ -61,26 +64,25 @@
         ) {
             opt.choices = undefined;
         }
+        if (
+            opt.channel_types != undefined &&
+            opt.type !== ApplicationCommandOptionType.CHANNEL
+        ) {
+            opt.channel_types = undefined;
+        }
     }
 
-    let commandOptionTypes = [];
-    const entries = Object.entries(ApplicationCommandOptionType);
-    entries.splice(0, entries.length / 2);
-    for (let commandType of entries) {
-        let display = commandType[0].toLowerCase();
-        const split = display.split("_");
-        display = split
-            .map((str) => str[0].toUpperCase() + str.slice(1))
-            .join(" ");
-        commandOptionTypes.push({
-            display: display,
-            value: commandType[1],
-        });
-    }
+    let commandOptionTypes = buildOptionsFromEnum(ApplicationCommandOptionType);
+
+    let channelTypes = buildOptionsFromEnum(ChannelType);
 
     let defaultOptionType = 2;
     $: option.type = commandOptionTypes[defaultOptionType].value;
     $: cleanUpOption(option);
+
+    function handleChannelTypeSelectionChanged(event) {
+        option.channel_types = event.detail.values.map((x) => x.value);
+    }
 </script>
 
 <div class="command-option-container">
@@ -97,10 +99,14 @@
         <div class="content" slot="content">
             <div class="command-option-info">
                 <Textbox label="Name" bind:value={option.name} maxlength={32} />
+                <Localization bind:localizations={option.name_localizations} />
                 <Textbox
                     label="Description"
                     bind:value={option.description}
                     maxlength={100}
+                />
+                <Localization
+                    bind:localizations={option.description_localizations}
                 />
                 <Checkbox label="Required" bind:value={option.required} />
                 <Select
@@ -128,7 +134,12 @@
                 </div>
             {/if}
             {#if option.type === ApplicationCommandOptionType.CHANNEL}
-                <div>Placeholder for multiselect</div>
+                <Select
+                    label="Channel Type"
+                    options={channelTypes}
+                    selectionMode="multiple"
+                    on:selectionChanged={handleChannelTypeSelectionChanged}
+                />
             {/if}
             {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER}
                 <Textbox

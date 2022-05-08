@@ -6,7 +6,11 @@
     import {
         ApplicationCommand,
         ApplicationCommandType,
+        build_permissions,
+        Permission,
     } from "../models/app_command";
+    import { buildOptionsFromEnum } from "../util/enum_util";
+    import Checkbox from "./base/Checkbox.svelte";
     import Collapsible from "./base/Collapsible.svelte";
     import Select from "./base/Select.svelte";
     import Textbox from "./base/Textbox.svelte";
@@ -30,23 +34,18 @@
         navigator.clipboard.writeText(command_json);
     }
 
-    let commandTypes = [];
-    const entries = Object.entries(ApplicationCommandType);
-    entries.splice(0, entries.length / 2);
-    for (let commandType of entries) {
-        let display = commandType[0].toLowerCase();
-        const split = display.split("_");
-        display = split
-            .map((str) => str[0].toUpperCase() + str.slice(1))
-            .join(" ");
-        commandTypes.push({
-            display: display,
-            value: commandType[1],
-        });
-    }
+    let commandTypes = buildOptionsFromEnum(ApplicationCommandType);
 
     let defaultCommandType = 0;
     $: command.type = commandTypes[defaultCommandType].value;
+
+    let permissions = buildOptionsFromEnum(Permission);
+
+    function setPermissions(permissions) {
+        command.default_member_permissions = build_permissions(
+            permissions.map((p) => p.value)
+        );
+    }
 </script>
 
 <svelte:head>
@@ -65,6 +64,7 @@
             </div>
         </div>
         <div class="content" slot="content">
+            <Textbox label="GuildID" bind:value={command.guild_id} />
             <Textbox label="Name" bind:value={command.name} maxlength={32} />
             <Localization bind:localizations={command.name_localizations} />
             <Textbox
@@ -80,6 +80,19 @@
                 options={commandTypes}
                 bind:currentIndex={defaultCommandType}
             />
+            <Select
+                label="Permissions"
+                options={permissions}
+                selectionMode="multiple"
+                on:selectionChanged={(event) =>
+                    setPermissions(event.detail.values)}
+            />
+            {#if !command.guild_id}
+                <Checkbox
+                    label="DM Permission"
+                    bind:value={command.dm_permission}
+                />
+            {/if}
             <div class="command-options">
                 {#if command.options}
                     {#each command.options as option, i}
