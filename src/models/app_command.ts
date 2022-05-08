@@ -109,6 +109,9 @@ export enum ApplicationCommandType {
 }
 
 export function build_permissions(permissions: Permission[]): string {
+    if (permissions.length == 0) {
+        return undefined;
+    }
     let result = 0;
     for (let permission of permissions) {
         result |= permission;
