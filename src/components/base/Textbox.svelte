@@ -31,8 +31,10 @@
 
 <style lang="scss">
     .input-group {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 8fr;
+        gap: 0.5em;
+        align-items: center;
 
         input {
             background: var(--background-color-brighter);

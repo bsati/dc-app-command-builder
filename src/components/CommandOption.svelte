@@ -1,15 +1,19 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import {
         ApplicationCommandOption,
         ApplicationCommandOptionType,
     } from "../models/app_command";
     import Checkbox from "./base/Checkbox.svelte";
+    import Collapsible from "./base/Collapsible.svelte";
     import Select from "./base/Select.svelte";
     import Textbox from "./base/Textbox.svelte";
     import CommandOptionChoice from "./CommandOptionChoice.svelte";
     import Icon from "./Icon.svelte";
 
     export let option: Partial<ApplicationCommandOption>;
+
+    const dispatch = createEventDispatcher();
 
     function addOption() {
         if (!option.options) {
@@ -80,74 +84,111 @@
 </script>
 
 <div class="command-option-container">
-    <div class="command-option-info">
-        <Textbox label="Name" bind:value={option.name} maxlength={32} />
-        <Textbox
-            label="Description"
-            bind:value={option.description}
-            maxlength={100}
-        />
-        <Checkbox label="Required" bind:value={option.required} />
-        <Select
-            label="Type"
-            options={commandOptionTypes}
-            bind:currentIndex={defaultOptionType}
-        />
-    </div>
-    {#if option.type === ApplicationCommandOptionType.SUB_COMMAND || option.type === ApplicationCommandOptionType.SUB_COMMAND_GROUP}
-        {#if option.options}
-            {#each option.options as child_option}
-                <svelte:self option={child_option} />
-            {/each}
-        {/if}
-        <div class="button-bar">
-            <button on:click={addOption}>
-                <Icon name="add" class="btn-icon" />Add Option
-            </button>
-        </div>
-    {/if}
-    {#if option.type === ApplicationCommandOptionType.CHANNEL}
-        <div>Placeholder for multiselect</div>
-    {/if}
-    {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER}
-        <Textbox
-            label="Max Value"
-            input_type={option.type === ApplicationCommandOptionType.NUMBER
-                ? "integer"
-                : "float"}
-            bind:value={option.max_value}
-        />
-        <Textbox
-            label="Min Value"
-            input_type={option.type === ApplicationCommandOptionType.NUMBER
-                ? "integer"
-                : "float"}
-            bind:value={option.min_value}
-        />
-    {/if}
-    {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER || option.type === ApplicationCommandOptionType.STRING}
-        <Checkbox label="Autocomplete" bind:value={option.autocomplete} />
-        {#if option.choices}
-            <div class="option-choice-list">
-                {#each option.choices as choice}
-                    <CommandOptionChoice bind:choice />
-                {/each}
+    <Collapsible>
+        <div class="container-header" slot="header">
+            <h3 class="heading">Option</h3>
+            <div
+                class="delete-icon-wrapper"
+                on:click={() => dispatch("remove")}
+            >
+                <Icon name="delete" class="delete-icon" />
             </div>
-        {/if}
-        <div class="button-bar">
-            <button on:click={addOptionChoice}>
-                <Icon name="add" class="btn-icon" />Add Option Choice
-            </button>
         </div>
-    {/if}
+        <div class="content" slot="content">
+            <div class="command-option-info">
+                <Textbox label="Name" bind:value={option.name} maxlength={32} />
+                <Textbox
+                    label="Description"
+                    bind:value={option.description}
+                    maxlength={100}
+                />
+                <Checkbox label="Required" bind:value={option.required} />
+                <Select
+                    label="Type"
+                    options={commandOptionTypes}
+                    bind:currentIndex={defaultOptionType}
+                />
+            </div>
+            {#if option.type === ApplicationCommandOptionType.SUB_COMMAND || option.type === ApplicationCommandOptionType.SUB_COMMAND_GROUP}
+                {#if option.options}
+                    {#each option.options as child_option, i}
+                        <svelte:self
+                            option={child_option}
+                            on:remove={() => {
+                                option.options.splice(i, 1);
+                                option.options = option.options;
+                            }}
+                        />
+                    {/each}
+                {/if}
+                <div class="button-bar">
+                    <button on:click={addOption}>
+                        <Icon name="add" class="btn-icon" />Add Option
+                    </button>
+                </div>
+            {/if}
+            {#if option.type === ApplicationCommandOptionType.CHANNEL}
+                <div>Placeholder for multiselect</div>
+            {/if}
+            {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER}
+                <Textbox
+                    label="Max Value"
+                    input_type={option.type ===
+                    ApplicationCommandOptionType.NUMBER
+                        ? "integer"
+                        : "float"}
+                    bind:value={option.max_value}
+                />
+                <Textbox
+                    label="Min Value"
+                    input_type={option.type ===
+                    ApplicationCommandOptionType.NUMBER
+                        ? "integer"
+                        : "float"}
+                    bind:value={option.min_value}
+                />
+            {/if}
+            {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER || option.type === ApplicationCommandOptionType.STRING}
+                <Checkbox
+                    label="Autocomplete"
+                    bind:value={option.autocomplete}
+                />
+                {#if option.choices}
+                    <div class="option-choice-list">
+                        {#each option.choices as choice, i}
+                            <CommandOptionChoice
+                                bind:choice
+                                bind:optionType={option.type}
+                                on:remove={() => {
+                                    option.choices.splice(i, 1);
+                                    option.choices = option.choices;
+                                }}
+                            />
+                        {/each}
+                    </div>
+                {/if}
+                <div class="button-bar">
+                    <button on:click={addOptionChoice}>
+                        <Icon name="add" class="btn-icon" />Add Option Choice
+                    </button>
+                </div>
+            {/if}
+        </div>
+    </Collapsible>
 </div>
 
 <style lang="scss">
     .command-option-container {
-        padding: 1em 1.5em;
         box-shadow: 0px 0px 5px 0px var(--box-shadow);
         border-radius: 0.5em;
         margin-bottom: 1em;
+
+        .container-header {
+            width: 100%;
+        }
+        .content {
+            padding: 1em;
+        }
     }
 
     .option-choice-list {

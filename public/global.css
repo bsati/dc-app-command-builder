@@ -67,3 +67,22 @@ button:hover {
 .input-label {
 	margin: .5em 0 .3em 0;
 }
+
+.delete-icon {
+	width: 20px;
+	color: var(--text-color);
+	position: absolute;
+	top: calc(50% - 10px);
+	right: 0;
+	cursor: pointer;
+}
+
+.container-header {
+	position: relative;
+	display: block;
+}
+
+.container-header>.heading {
+	display: inline-block;
+	margin: .5em 0;
+}

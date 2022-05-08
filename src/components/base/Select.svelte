@@ -87,4 +87,11 @@
     .input-label {
         display: inline-block;
     }
+
+    .select {
+        display: grid;
+        grid-template-columns: 1fr 8fr;
+        gap: 0.5em;
+        align-items: center;
+    }
 </style>
