@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import Icon from "../Icon.svelte";
 
     interface SelectValue {
@@ -6,14 +7,37 @@
         value: any;
     }
 
-    export let label: string;
+    export let label: string | undefined = undefined;
     export let options: SelectValue[];
     export let currentIndex = -1;
     let opened = false;
+
+    let selectElement: HTMLElement;
+    let optionsElements: HTMLElement;
+
+    function handleWindowClick(event) {
+        if (
+            event.target.parentNode != selectElement &&
+            event.target.parentNode != optionsElements &&
+            opened
+        ) {
+            opened = false;
+        }
+    }
+
+    const dispatch = createEventDispatcher();
 </script>
 
-<div class="select">
-    <span class="input-label">{label}</span>
+<svelte:window on:mousedown={handleWindowClick} />
+
+<div
+    class="select"
+    class:unlabeled={label == undefined}
+    bind:this={selectElement}
+>
+    {#if label != undefined}
+        <span class="input-label">{label}</span>
+    {/if}
     <div class="select-input" on:click={() => (opened = !opened)}>
         {#if currentIndex >= 0}
             {options[currentIndex].display}
@@ -22,9 +46,17 @@
         {/if}
         <Icon name="chevron_down" class="select-chevron" />
         {#if opened}
-            <div class="select-options">
+            <div class="select-options" bind:this={optionsElements}>
                 {#each options as option, i}
-                    <div class="option" on:click={() => (currentIndex = i)}>
+                    <div
+                        class="option"
+                        on:click={() => {
+                            currentIndex = i;
+                            dispatch("selectionChanged", {
+                                newValue: options[i],
+                            });
+                        }}
+                    >
                         {option.display}
                     </div>
                 {/each}
@@ -43,7 +75,6 @@
         border: 2px solid var(--input-border);
         font-size: 10pt;
         position: relative;
-        z-index: 1;
 
         :global(.select-chevron) {
             position: absolute;
@@ -57,7 +88,7 @@
         top: 3.15em;
         left: 0;
         background: var(--background-color-brighter);
-        z-index: 2;
+        z-index: 1;
         border-radius: 0.5em;
         width: 100%;
         max-height: 13em;
@@ -88,10 +119,18 @@
         display: inline-block;
     }
 
-    .select {
+    .select:not(.unlabeled) {
         display: grid;
         grid-template-columns: 1fr 8fr;
         gap: 0.5em;
         align-items: center;
+    }
+
+    .select.unlabeled {
+        display: flex;
+
+        .select-input {
+            width: 100%;
+        }
     }
 </style>

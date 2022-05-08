@@ -12,6 +12,7 @@
     import Textbox from "./base/Textbox.svelte";
     import CommandOption from "./CommandOption.svelte";
     import Icon from "./Icon.svelte";
+    import Localization from "./Localization.svelte";
 
     export let command: Partial<ApplicationCommand>;
     $: command_json = JSON.stringify(command, null, 4);
@@ -65,10 +66,14 @@
         </div>
         <div class="content" slot="content">
             <Textbox label="Name" bind:value={command.name} maxlength={32} />
+            <Localization bind:localizations={command.name_localizations} />
             <Textbox
                 label="Description"
                 bind:value={command.description}
                 maxlength={100}
+            />
+            <Localization
+                bind:localizations={command.description_localizations}
             />
             <Select
                 label="Type"

@@ -6,9 +6,9 @@ export interface ApplicationCommand {
     application_id: Snowflake,
     guild_id?: Snowflake,
     name: string,
-    name_localizations?: Map<Locale, string>
+    name_localizations?: Localization
     description: string,
-    description_localizations?: Map<Locale, string>,
+    description_localizations?: Localization,
     options?: Partial<ApplicationCommandOption>[], // max 25
     default_member_permissions?: string,
     dm_permission?: boolean
@@ -18,9 +18,9 @@ export interface ApplicationCommand {
 export interface ApplicationCommandOption {
     type: ApplicationCommandOptionType,
     name: string, // 1-32 chars
-    name_localizations?: Map<Locale, string>,
+    name_localizations?: Localization,
     description: string, // 1-100 chars
-    description_localizations: Map<Locale, string>,
+    description_localizations: Localization,
     required?: boolean,
     choices?: Partial<ApplicationCommandOptionChoice>[], // max 25
     options?: Partial<ApplicationCommandOption>[], // max 25
@@ -32,7 +32,7 @@ export interface ApplicationCommandOption {
 
 export interface ApplicationCommandOptionChoice {
     name: string, // max 100 chars
-    name_localizations: Map<Locale, string>,
+    name_localizations: Localization,
     value: string | number; // max 100 chars
 }
 
@@ -63,6 +63,10 @@ export enum ChannelType {
     GUILD_STAGE_VOICE = 13,
     GUILD_DIRECTORY = 14,
     GUILD_FORUM = 15,
+}
+
+export interface Localization {
+    [key: string]: string;
 }
 
 export enum Locale {
