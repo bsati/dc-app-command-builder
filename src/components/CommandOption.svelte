@@ -50,9 +50,10 @@
         }
         if (
             opt.autocomplete != undefined &&
-            opt.type !== ApplicationCommandOptionType.NUMBER &&
-            opt.type !== ApplicationCommandOptionType.INTEGER &&
-            opt.type !== ApplicationCommandOptionType.STRING
+            ((opt.type !== ApplicationCommandOptionType.NUMBER &&
+                opt.type !== ApplicationCommandOptionType.INTEGER &&
+                opt.type !== ApplicationCommandOptionType.STRING) ||
+                (opt.choices != undefined && opt.choices.length > 0))
         ) {
             opt.autocomplete = undefined;
         }
@@ -160,10 +161,12 @@
                 />
             {/if}
             {#if option.type === ApplicationCommandOptionType.NUMBER || option.type === ApplicationCommandOptionType.INTEGER || option.type === ApplicationCommandOptionType.STRING}
-                <Checkbox
-                    label="Autocomplete"
-                    bind:value={option.autocomplete}
-                />
+                {#if option.choices == undefined || option.choices.length == 0}
+                    <Checkbox
+                        label="Autocomplete"
+                        bind:value={option.autocomplete}
+                    />
+                {/if}
                 {#if option.choices}
                     <div class="option-choice-list">
                         {#each option.choices as choice, i}
@@ -172,7 +175,11 @@
                                 bind:optionType={option.type}
                                 on:remove={() => {
                                     option.choices.splice(i, 1);
-                                    option.choices = option.choices;
+                                    if (option.choices.length === 0) {
+                                        option.choices = undefined;
+                                    } else {
+                                        option.choices = option.choices;
+                                    }
                                 }}
                             />
                         {/each}

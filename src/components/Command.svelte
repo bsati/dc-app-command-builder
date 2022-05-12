@@ -100,7 +100,11 @@
                             bind:option
                             on:remove={() => {
                                 command.options.splice(i, 1);
-                                command.options = option.options;
+                                if (command.options.length === 0) {
+                                    command.options = undefined;
+                                } else {
+                                    command.options = option.options;
+                                }
                             }}
                         />
                     {/each}

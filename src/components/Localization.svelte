@@ -4,7 +4,7 @@
     import Textbox from "./base/Textbox.svelte";
     import Icon from "./Icon.svelte";
 
-    export let localizations: Localization;
+    export let localizations: Localization | undefined;
     let keys: string[];
     $: if (localizations) {
         keys = Object.keys(localizations);
@@ -13,7 +13,6 @@
     const locales = [];
     const locale_keys = [];
     const entries = Object.entries(Locale);
-    entries.splice(0, entries.length / 2);
     for (let commandType of entries) {
         locale_keys.push(commandType[1]);
         let display = commandType[0].toLowerCase();
@@ -67,7 +66,7 @@
                         on:selectionChanged={(event) =>
                             selectionChanged(event, locale)}
                     />
-                    <Textbox value={localizations[locale]} />
+                    <Textbox bind:value={localizations[locale]} />
                     <div
                         class="delete-locale"
                         on:click={() => deleteLocale(locale)}
